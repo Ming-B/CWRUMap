@@ -10,7 +10,7 @@ import MapKit
 
 struct InterestingPlace: Identifiable {
     let id: UUID = UUID()
-    var name:String
+    var name: String
     var coordinate: CLLocationCoordinate2D
 }
 
@@ -23,10 +23,12 @@ struct ContentView: View {
     ]
     
     @State var position = MapCameraPosition.region(
-        MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 41.511020, longitude: -81.611563), span: .init(latitudeDelta: 1, longitudeDelta: 1))
-        
+        MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 41.511020, longitude: -81.611563), span: .init(latitudeDelta: 0.01, longitudeDelta: 0.01))
     )
+    
+    
     @State private var route:MKRoute?
+    
     func getDirections() {
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 41.511020, longitude: -81.611563)))
@@ -39,29 +41,34 @@ struct ContentView: View {
             route = response?.routes.first
         }
     }
-    @State var selectedPlace: UUID?
+    @State var selectedPlace: UUID? ///allows for selection of a place
     
     var body: some View {
-        Map(selection:$selectedPlace){
+        Map(selection: $selectedPlace) {
             ForEach(locations) { location in
-                Marker(location.name, systemImage: "graduationcap", coordinate: location.coordinate)
+                Marker(location.name, systemImage: "graduationcap.fill", coordinate: location.coordinate)
             }
-            
             Annotation("Walking Path", coordinate: CLLocationCoordinate2D(latitude: 41.511020, longitude: -81.611563)) {
                 VStack {
                     Image(systemName: "figure.walk")
-                        .padding()
-                        .background(Color.accentColor)
-                        .clipShape(.buttonBorder)
+                        .padding(5)
+                        .background(Color.blue)
+                        .clipShape(.circle)
                     
                     Text("Walking Path")
+                        .foregroundStyle(.white)
                 }
-            }.annotationTitles(.hidden)
+            }
+            .annotationTitles(.hidden)
             MapCircle(center: CLLocationCoordinate2D(latitude: 41.511020, longitude: -81.611563), radius: 80)
                 .foregroundStyle(.blue.opacity(0.3))
             
+            MapPolyline(coordinates: [CLLocationCoordinate2D(latitude: 41.502183, longitude: -81.607837), CLLocationCoordinate2D(latitude: 41.506145, longitude: -81.611097), CLLocationCoordinate2D(latitude: 41.508636, longitude: -81.611392)])
+                .stroke(Color.blue, lineWidth: 3.0)
+            
+
         }
-        .mapStyle(.imagery)
+        .mapStyle(.imagery(elevation: .realistic))
         
     }
 }
