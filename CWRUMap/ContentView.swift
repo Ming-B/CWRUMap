@@ -31,8 +31,9 @@ struct ContentView: View {
     
     func getDirections() {
         let request = MKDirections.Request()
-        request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 41.511020, longitude: -81.611563)))
-        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 41.506145, longitude: -81.611097)))
+        request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 41.502183, longitude: -81.607837)))
+        //mkmapitem wrapper around destination, source where you start, destination where you want to end up
+        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: 41.508636, longitude: -81.611392)))
         request.transportType = .walking
         
         Task {
@@ -41,10 +42,16 @@ struct ContentView: View {
             route = response?.routes.first
         }
     }
+    
     @State var selectedPlace: UUID? ///allows for selection of a place
     
     var body: some View {
         Map(selection: $selectedPlace) {
+            if let route {
+                MapPolyline(route)
+                    .stroke(.green, lineWidth: 5)
+                
+            }
             ForEach(locations) { location in
                 Marker(location.name, systemImage: "graduationcap.fill", coordinate: location.coordinate)
             }
@@ -69,6 +76,9 @@ struct ContentView: View {
 
         }
         .mapStyle(.imagery(elevation: .realistic))
+        .onAppear {
+            getDirections()
+        }
         
     }
 }
